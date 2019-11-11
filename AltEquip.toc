@@ -1,0 +1,8 @@
+## Interface: 11302
+## Title: Alt equipment
+## Notes: Show current equipment of your alts in WoW Classic
+## Author: Martin Hassman
+## Version: 1.0 
+## SavedVariables: AltEquipSettings
+
+core.lua
