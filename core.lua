@@ -51,7 +51,8 @@ SLASH_ALTITEM2 = "/altitem";
 SlashCmdList["ALTITEM"] = function(msg)
 
 	if msg == "" then
-		print("Which slot do you want to show? (e.g. neck, chest...)");
+		print("Which slot do you want to show?");
+		print("ammo, head, neck, shoulder, shirt, chest, belt, legs, feet, wrist, gloves, finger0, finger1, trinket0, trinket1, back, mainhand, secondaryhand, ranged, tabard");
 
 	else
 		-- for wrong slot names script just fails here
