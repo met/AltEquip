@@ -96,11 +96,26 @@ function frame:OnEvent(event, arg1)
 
 	elseif event == "PLAYER_ENTERING_WORLD" then
 		UpdatePlayerData(AltEquipSettings);
-		UpdatePlayerEquipment(AltEquipSettings);
+
+		if AltEquipSettings[GetUnitName("player")]["items"] == nill then
+		-- sometimes equipment data are not loaded yet,
+		-- we do not want to rewrite last equipment data
+		-- so update now only if we do not have any data saved yet 
+			UpdatePlayerEquipment(AltEquipSettings);
+
+		-- because we do not have complete data yet,
+		-- register for some event that happen very soon, eg. update of BAGS = dirty solution
+			frame:RegisterEvent("BAG_UPDATE");
+		end
 
 	elseif event == "PLAYER_EQUIPMENT_CHANGED" then
-		-- equipment data cannot be read during logout event, have to handle them here
+		-- save new equipment data
 		UpdatePlayerEquipment(AltEquipSettings);
+
+	elseif event == "BAG_UPDATE" then
+		-- we use this event only once for the first time and deregister
+		UpdatePlayerEquipment(AltEquipSettings);
+		frame:UnregisterEvent("BAG_UPDATE");
 	
 	elseif event == "PLAYER_LOGOUT" then
 		UpdatePlayerData(AltEquipSettings);
