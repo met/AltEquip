@@ -78,7 +78,17 @@ SlashCmdList["ALTSHOW"] = function(msg)
 
 end 
 
-local frame = CreateFrame("FRAME");
+SLASH_ALTPROFS1 = "/altp";
+SLASH_ALTPROFS2 = "/altprofs";
+-- usage /altshow # display all known alts
+SlashCmdList["ALTPROFS"] = function(msg)
+
+	print("Found these alts professions:");
+	printSavedProfessions();
+
+end 
+
+
 
 function printSavedCharacters()
 	for name in pairs(AltEquipSettings) do
@@ -86,6 +96,23 @@ function printSavedCharacters()
 	end
 end
 
+
+function printSavedProfessions()
+	for name in pairs(AltEquipSettings) do
+		if AltEquipSettings[name]["profs"] ~= nill then
+			for prof in pairs(AltEquipSettings[name]["profs"]) do
+				if AltEquipSettings[name]["profs"][prof].level ~= nill then
+					print(name, "-", prof, AltEquipSettings[name]["profs"][prof].level);
+				end
+			end
+
+		end
+	end
+end
+
+
+
+local frame = CreateFrame("FRAME");
 
 function frame:OnEvent(event, arg1)
 
@@ -117,6 +144,10 @@ function frame:OnEvent(event, arg1)
 		UpdatePlayerEquipment(AltEquipSettings);
 		frame:UnregisterEvent("BAG_UPDATE");
 	
+	elseif event == "CHAT_MSG_SKILL" then
+			UpdatePlayerProfs(AltEquipSettings, arg1);
+
+
 	elseif event == "PLAYER_LOGOUT" then
 		UpdatePlayerData(AltEquipSettings);
 	end
@@ -147,9 +178,33 @@ function UpdatePlayerData(setts)
 
 end
 
+function UpdatePlayerProfs(setts, msg)
+	local player = GetUnitName("player");
+
+	-- Msg like:
+	-- Your skill in Fishing has increased to 131.
+	local profession, proflevel = string.match(msg, "Your skill in (.+) has increased to (%d+).");
+
+	if profession == nill or proflevel == nill then
+		return;
+	end
+
+	if setts[player]["profs"] == nill then
+		setts[player]["profs"] = {};
+	end
+
+	if setts[player]["profs"][profession] == nill then
+		setts[player]["profs"][profession] = {};
+	end
+
+	setts[player]["profs"][profession].level = proflevel;
+
+end
+
 frame:RegisterEvent("ADDON_LOADED");
 frame:RegisterEvent("PLAYER_LOGOUT");
 frame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED");
 frame:RegisterEvent("PLAYER_ENTERING_WORLD");
+frame:RegisterEvent("CHAT_MSG_SKILL");
 
 frame:SetScript("OnEvent", frame.OnEvent);
