@@ -78,14 +78,30 @@ SlashCmdList["ALTSHOW"] = function(msg)
 
 end 
 
+SLASH_ALTSKILLS1 = "/altsk";
+SLASH_ALTSKILLS2 = "/altskills";
+-- usage /altshow # display all known alts
+SlashCmdList["ALTSKILLS"] = function(msg)
+
+	if msg == "me" then
+		printMySavedSkills();
+	else
+		print("Found these alts skills:");
+		printSavedSkills();
+	end
+end 
+
 SLASH_ALTPROFS1 = "/altp";
 SLASH_ALTPROFS2 = "/altprofs";
 -- usage /altshow # display all known alts
 SlashCmdList["ALTPROFS"] = function(msg)
 
-	print("Found these alts professions:");
-	printSavedProfessions();
-
+	if msg == "me" then
+		printMySavedProfessions();
+	else
+		print("Found these alts professions:");
+		printSavedProfessions();
+	end
 end 
 
 
@@ -97,7 +113,63 @@ function printSavedCharacters()
 end
 
 
+local primaryProfessions = {"Alchemy", "Blacksmithing", "Enchanting", "Engineering", "Herbalism", "Leatherworking", "Mining", "Skinning", "Tailoring"};
+local secondaryProfessions = {"Cooking", "First Aid", "Fishing"};
+
+local function contains(table, val)
+   for i = 1,#table do
+      if table[i] == val then 
+         return true
+      end
+   end
+   return false
+end
+
+function printMySavedProfessions()
+	local player = GetUnitName("player");
+
+		if AltEquipSettings[player] ~= nill and AltEquipSettings[player]["profs"] ~= nill then
+			print("Found these professions:");
+			for prof in pairs(AltEquipSettings[player]["profs"]) do
+				if contains(primaryProfessions, prof) and AltEquipSettings[player]["profs"][prof].level ~= nill then
+					print(prof, AltEquipSettings[player]["profs"][prof].level);
+				end
+			end
+
+		end
+
+end
+
 function printSavedProfessions()
+	for name in pairs(AltEquipSettings) do
+		if AltEquipSettings[name]["profs"] ~= nill then
+			for prof in pairs(AltEquipSettings[name]["profs"]) do
+				if contains(primaryProfessions, prof) and AltEquipSettings[name]["profs"][prof].level ~= nill then
+					print(name, "-", prof, AltEquipSettings[name]["profs"][prof].level);
+				end
+			end
+
+		end
+	end
+end
+
+
+function printMySavedSkills()
+	local player = GetUnitName("player");
+
+		if AltEquipSettings[player] ~= nill and AltEquipSettings[player]["profs"] ~= nill then
+			print("Found these skills:");
+			for prof in pairs(AltEquipSettings[player]["profs"]) do
+				if AltEquipSettings[player]["profs"][prof].level ~= nill then
+					print(prof, AltEquipSettings[player]["profs"][prof].level);
+				end
+			end
+
+		end
+
+end
+
+function printSavedSkills()
 	for name in pairs(AltEquipSettings) do
 		if AltEquipSettings[name]["profs"] ~= nill then
 			for prof in pairs(AltEquipSettings[name]["profs"]) do
