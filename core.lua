@@ -108,7 +108,7 @@ end
 
 function printSavedCharacters()
 	for name in pairs(AltEquipSettings) do
-		print(name, " l", AltEquipSettings[name]["level"], " ", AltEquipSettings[name]["class"]);
+		print(name, " l".. AltEquipSettings[name]["level"], " ", AltEquipSettings[name]["class"]);
 	end
 end
 
