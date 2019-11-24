@@ -20,6 +20,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 --]]
 
+local cYellow = "\124cFFFFFF00";
+local cWhite = "\124cFFFFFFFF";
+
 SLASH_ALTEQUIP1 = "/alte";
 SLASH_ALTEQUIP2 = "/altequip";
 
@@ -73,7 +76,7 @@ SLASH_ALTSHOW2 = "/altshow";
 -- usage /altshow # display all known alts
 SlashCmdList["ALTSHOW"] = function(msg)
 
-	print("Found these alts:");
+	print(cYellow.."Found these alts:");
 	printSavedCharacters();
 
 end 
@@ -83,11 +86,14 @@ SLASH_ALTSKILLS2 = "/altskills";
 -- usage /altshow # display all known alts
 SlashCmdList["ALTSKILLS"] = function(msg)
 
-	if msg == "me" then
+	if msg == "" then
+		print(cYellow.."Found these alts skills:");
+		printSavedSkills();
+	elseif msg == "me" then
 		printMySavedSkills();
 	else
-		print("Found these alts skills:");
-		printSavedSkills();
+		print(cYellow.."Found these alts skills:");
+		printSavedSkills(msg);
 	end
 end 
 
@@ -99,7 +105,7 @@ SlashCmdList["ALTPROFS"] = function(msg)
 	if msg == "me" then
 		printMySavedProfessions();
 	else
-		print("Found these alts professions:");
+		print(cYellow.."Found these alts professions:");
 		printSavedProfessions();
 	end
 end 
@@ -158,7 +164,7 @@ function printMySavedSkills()
 	local player = GetUnitName("player");
 
 		if AltEquipSettings[player] ~= nill and AltEquipSettings[player]["profs"] ~= nill then
-			print("Found these skills:");
+			print(cYellow.."Found these skills:");
 			for prof in pairs(AltEquipSettings[player]["profs"]) do
 				if AltEquipSettings[player]["profs"][prof].level ~= nill then
 					print(prof, AltEquipSettings[player]["profs"][prof].level);
@@ -169,13 +175,18 @@ function printMySavedSkills()
 
 end
 
-function printSavedSkills()
+function printSavedSkills(filter)
+
 	for name in pairs(AltEquipSettings) do
+	
 		if AltEquipSettings[name]["profs"] ~= nill then
+	
 			for prof in pairs(AltEquipSettings[name]["profs"]) do
-				if AltEquipSettings[name]["profs"][prof].level ~= nill then
+
+				if (filter == nill or string.lower(prof) == string.lower(filter)) and AltEquipSettings[name]["profs"][prof].level ~= nill then
 					print(name, "-", prof, AltEquipSettings[name]["profs"][prof].level);
 				end
+
 			end
 
 		end
