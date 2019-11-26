@@ -33,10 +33,10 @@ SlashCmdList["ALTEQUIP"] = function(msg)
 		print("Which character do you want to list?");
 		printSavedCharacters();
 	else
-		if AltEquipSettings[msg] == nill then
+		if AltEquipSettings[msg] == nil then
 			print("Do not know character ", msg, ".");
 		else
-			if AltEquipSettings[msg].items == nill then
+			if AltEquipSettings[msg].items == nil then
 				print("Character ", msg, " has no saved equipment.");
 			else
 				for k,v in pairs(AltEquipSettings[msg].items) do
@@ -63,7 +63,7 @@ SlashCmdList["ALTITEM"] = function(msg)
 
 			print("Equipment in ", msg, ":");
 			for name in pairs(AltEquipSettings) do
-				if AltEquipSettings[name]["items"] ~= nill then
+				if AltEquipSettings[name]["items"] ~= nil then
 					print(name, " l", AltEquipSettings[name]["level"], " ", AltEquipSettings[name]["class"], " ", AltEquipSettings[name]["items"][slotid]);
 				end
 			end
@@ -134,10 +134,10 @@ end
 function printMySavedProfessions()
 	local player = GetUnitName("player");
 
-		if AltEquipSettings[player] ~= nill and AltEquipSettings[player]["profs"] ~= nill then
+		if AltEquipSettings[player] ~= nil and AltEquipSettings[player]["profs"] ~= nil then
 			print("Found these professions:");
 			for prof in pairs(AltEquipSettings[player]["profs"]) do
-				if contains(primaryProfessions, prof) and AltEquipSettings[player]["profs"][prof].level ~= nill then
+				if contains(primaryProfessions, prof) and AltEquipSettings[player]["profs"][prof].level ~= nil then
 					print(prof, AltEquipSettings[player]["profs"][prof].level);
 				end
 			end
@@ -148,9 +148,9 @@ end
 
 function printSavedProfessions()
 	for name in pairs(AltEquipSettings) do
-		if AltEquipSettings[name]["profs"] ~= nill then
+		if AltEquipSettings[name]["profs"] ~= nil then
 			for prof in pairs(AltEquipSettings[name]["profs"]) do
-				if contains(primaryProfessions, prof) and AltEquipSettings[name]["profs"][prof].level ~= nill then
+				if contains(primaryProfessions, prof) and AltEquipSettings[name]["profs"][prof].level ~= nil then
 					print(name, "-", prof, AltEquipSettings[name]["profs"][prof].level);
 				end
 			end
@@ -163,10 +163,10 @@ end
 function printMySavedSkills()
 	local player = GetUnitName("player");
 
-		if AltEquipSettings[player] ~= nill and AltEquipSettings[player]["profs"] ~= nill then
+		if AltEquipSettings[player] ~= nil and AltEquipSettings[player]["profs"] ~= nil then
 			print(cYellow.."Found these skills:");
 			for prof in pairs(AltEquipSettings[player]["profs"]) do
-				if AltEquipSettings[player]["profs"][prof].level ~= nill then
+				if AltEquipSettings[player]["profs"][prof].level ~= nil then
 					print(prof, AltEquipSettings[player]["profs"][prof].level);
 				end
 			end
@@ -179,11 +179,11 @@ function printSavedSkills(filter)
 
 	for name in pairs(AltEquipSettings) do
 	
-		if AltEquipSettings[name]["profs"] ~= nill then
+		if AltEquipSettings[name]["profs"] ~= nil then
 	
 			for prof in pairs(AltEquipSettings[name]["profs"]) do
 
-				if (filter == nill or string.lower(prof) == string.lower(filter)) and AltEquipSettings[name]["profs"][prof].level ~= nill then
+				if (filter == nil or string.lower(prof) == string.lower(filter)) and AltEquipSettings[name]["profs"][prof].level ~= nil then
 					print(name, "-", prof, AltEquipSettings[name]["profs"][prof].level);
 				end
 
@@ -200,14 +200,14 @@ local frame = CreateFrame("FRAME");
 function frame:OnEvent(event, arg1)
 
 	if event == "ADDON_LOADED" and arg1 == "AltEquip" then
-		if AltEquipSettings == nill then
+		if AltEquipSettings == nil then
 			AltEquipSettings = {};
 		end
 
 	elseif event == "PLAYER_ENTERING_WORLD" then
 		UpdatePlayerData(AltEquipSettings);
 
-		if AltEquipSettings[GetUnitName("player")]["items"] == nill then
+		if AltEquipSettings[GetUnitName("player")]["items"] == nil then
 		-- sometimes equipment data are not loaded yet,
 		-- we do not want to rewrite last equipment data
 		-- so update now only if we do not have any data saved yet 
@@ -251,7 +251,7 @@ end
 function UpdatePlayerData(setts)
 	local player = GetUnitName("player");
 
-	if setts[player] == nill then
+	if setts[player] == nil then
 		setts[player] = {};
 	end
 
@@ -268,15 +268,15 @@ function UpdatePlayerProfs(setts, msg)
 	-- Your skill in Fishing has increased to 131.
 	local profession, proflevel = string.match(msg, "Your skill in (.+) has increased to (%d+).");
 
-	if profession == nill or proflevel == nill then
+	if profession == nil or proflevel == nil then
 		return;
 	end
 
-	if setts[player]["profs"] == nill then
+	if setts[player]["profs"] == nil then
 		setts[player]["profs"] = {};
 	end
 
-	if setts[player]["profs"][profession] == nill then
+	if setts[player]["profs"][profession] == nil then
 		setts[player]["profs"][profession] = {};
 	end
 
