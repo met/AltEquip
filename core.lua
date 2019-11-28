@@ -111,6 +111,77 @@ SlashCmdList["ALTPROFS"] = function(msg)
 end 
 
 
+SLASH_ALTNOTES1 = "/altn";
+SLASH_ALTNOTES2 = "/altnotes";
+-- usage /altnotes CHARNAME # display notes for given character
+-- /altnotes add CHARNAME note
+SlashCmdList["ALTNOTES"] = function(msg)
+
+	local arg1, arg2, arg3 = string.match(msg, "%s?(%w*)%s?(%w*)%s?(.*)");
+
+	--print(arg1);
+	--print(arg2);
+	--print(arg3);
+
+	if arg1 == "" and arg2 == "" and arg3 == "" then
+		print(cYellow.."Usage:");
+		print(cYellow.."/altn -- print all notes for all characters.");
+		print(cYellow.."/altn CHARNAME -- print notes for given character.");
+		print(cYellow.."/altn add CHARNAME long text... -- add new note for given character.");
+		print(cYellow.."/altn del CHARNAME -- delete notes for given character");
+
+	-- all
+	elseif arg1 == "all" then
+		print(cYellow.."Notes for all characters:");
+
+		for k,v in pairs(AltEquipSettings) do
+
+			if AltEquipSettings[k].notes ~= nil then
+				for k1,v1 in pairs(AltEquipSettings[k].notes) do
+					print(k, ":", k1, "-", v1);
+				end
+			end
+
+		end
+
+	-- add CHARNAME note
+	elseif arg1 == "add" then
+
+		if arg2 == "me" then arg2 = GetUnitName("player"); end
+
+		if arg2 ~= nil and arg2 ~= "" and AltEquipSettings[arg2] ~= nil and arg3 ~= "" then
+			print(cYellow.."Adding note for character "..arg2..".");
+
+			if AltEquipSettings[arg2].notes == nil then
+				AltEquipSettings[arg2].notes = {};
+			end
+
+			table.insert(AltEquipSettings[arg2].notes, arg3);
+		end
+
+	-- CHARNAME = show notes for given character
+	elseif arg1 ~= "" and arg2 == "" and AltEquipSettings[arg1] then
+		print(cYellow.."Notes for character "..arg1..":");
+
+		if AltEquipSettings[arg1].notes ~= nil then
+			for k,v in pairs(AltEquipSettings[arg1].notes) do
+				print(k, "-", v);
+			end
+		end
+
+	elseif arg1 == "del" or arg1 == "delete" then
+
+		if arg2 == "me" then arg2 = GetUnitName("player"); end
+
+		if arg2 ~= nil and arg2 ~= "" and AltEquipSettings[arg2] ~= nil then
+			print(cYellow.."Deleting notes for character "..arg2..".");
+			AltEquipSettings[arg2].notes = nil;
+
+		end
+
+	end
+
+end 
 
 function printSavedCharacters()
 	for name in pairs(AltEquipSettings) do
