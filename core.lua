@@ -138,7 +138,12 @@ SlashCmdList["ALTNOTES"] = function(msg)
 
 			if AltEquipSettings[k].notes ~= nil then
 				for k1,v1 in pairs(AltEquipSettings[k].notes) do
-					print(k, ":", k1, "-", v1);
+
+					if k == GetUnitName("player") then
+						print(cYellow..k, ":", k1, "-", v1);
+					else
+						print(cYellow..k, ":"..cWhite, k1, "-", v1);
+					end
 				end
 			end
 
