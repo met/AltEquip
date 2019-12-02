@@ -99,7 +99,7 @@ end
 
 SLASH_ALTPROFS1 = "/altp";
 SLASH_ALTPROFS2 = "/altprofs";
--- usage /altshow # display all known alts
+-- usage /altp # display all alts professions
 SlashCmdList["ALTPROFS"] = function(msg)
 
 	if msg == "me" then
@@ -110,6 +110,12 @@ SlashCmdList["ALTPROFS"] = function(msg)
 	end
 end 
 
+SLASH_ALTBAGS1 = "/altb";
+SLASH_ALTBAGS2 = "/altbags";
+-- usage /altb # display all alts bags
+SlashCmdList["ALTBAGS"] = function(msg)
+	printSavedBags(AltEquipSettings);	
+end 
 
 function printSavedCharacters()
 	for name in pairs(AltEquipSettings) do
@@ -192,11 +198,37 @@ function printSavedSkills(filter)
 	end
 end
 
+-- print stored infor about alts bags (size and type)
+function printSavedBags(setts)
+	print(cYellow.."Bags of your characters:");
+
+	for name in pairs(setts) do
+
+		local line = name .. " - ";
+
+		if setts[name].bags ~= nil then
+
+			for n = 1, #setts[name].bags do
+
+				line = line .. setts[name].bags[n].slots;
+
+				if setts[name].bags[n].type == 0 then
+					line = line.." ";
+				else
+					line = line.."(special) ";
+				end
+			end
+
+			print(line);
+		end
+
+	end
+end
 
 
 local frame = CreateFrame("FRAME");
 
-function frame:OnEvent(event, arg1)
+function frame:OnEvent(event, arg1, ...)
 
 	if event == "ADDON_LOADED" and arg1 == "AltEquip" then
 		if AltEquipSettings == nil then
@@ -220,11 +252,6 @@ function frame:OnEvent(event, arg1)
 	elseif event == "PLAYER_EQUIPMENT_CHANGED" then
 		-- save new equipment data
 		UpdatePlayerEquipment(AltEquipSettings);
-
-	elseif event == "BAG_UPDATE" then
-		-- we use this event only once for the first time and deregister
-		UpdatePlayerEquipment(AltEquipSettings);
-		frame:UnregisterEvent("BAG_UPDATE");
 	
 	elseif event == "CHAT_MSG_SKILL" then
 			UpdatePlayerProfs(AltEquipSettings, arg1);
@@ -232,6 +259,10 @@ function frame:OnEvent(event, arg1)
 
 	elseif event == "PLAYER_LOGOUT" then
 		UpdatePlayerData(AltEquipSettings);
+
+	elseif event == "BAG_UPDATE" then
+		--print("BAG_UPDATE", arg1, ...);
+		UpdatePlayerBags(AltEquipSettings);
 	end
 
 end
@@ -283,10 +314,29 @@ function UpdatePlayerProfs(setts, msg)
 
 end
 
+function UpdatePlayerBags(setts)
+	local player = GetUnitName("player");
+
+	if setts[player] == nil then
+		setts[player] = {};
+	end
+
+	setts[player].bags = {};
+
+	for n=1,NUM_BAG_SLOTS do
+		local nSlots = GetContainerNumSlots(n);
+		local nFreeSlots, bagType = GetContainerNumFreeSlots(n);
+
+		table.insert(setts[player].bags, { ["slots"] = nSlots, ["type"] = bagType});
+	end
+end
+
 frame:RegisterEvent("ADDON_LOADED");
 frame:RegisterEvent("PLAYER_LOGOUT");
 frame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED");
 frame:RegisterEvent("PLAYER_ENTERING_WORLD");
 frame:RegisterEvent("CHAT_MSG_SKILL");
+frame:RegisterEvent("BAG_UPDATE");
+
 
 frame:SetScript("OnEvent", frame.OnEvent);
