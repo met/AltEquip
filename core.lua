@@ -23,6 +23,20 @@ SOFTWARE.
 local cYellow = "\124cFFFFFF00";
 local cWhite = "\124cFFFFFFFF";
 
+local primaryProfessions = {"Alchemy", "Blacksmithing", "Enchanting", "Engineering", "Herbalism", "Leatherworking", "Mining", "Skinning", "Tailoring"};
+local secondaryProfessions = {"Cooking", "First Aid", "Fishing"};
+
+local function contains(table, val)
+   for i = 1,#table do
+      if table[i] == val then 
+         return true
+      end
+   end
+   return false
+end
+
+
+
 SLASH_ALTEQUIP1 = "/alte";
 SLASH_ALTEQUIP2 = "/altequip";
 
@@ -119,22 +133,24 @@ end
 
 function printSavedCharacters()
 	for name in pairs(AltEquipSettings) do
-		print(name, " l".. AltEquipSettings[name]["level"], " ", AltEquipSettings[name]["class"]);
+		print(name, " l".. AltEquipSettings[name]["level"], " ", AltEquipSettings[name]["class"]..GetCharacterProfessionLevels(AltEquipSettings, name));
 	end
 end
 
+function GetCharacterProfessionLevels(setts, charname)
+	local foundProf = "";
 
-local primaryProfessions = {"Alchemy", "Blacksmithing", "Enchanting", "Engineering", "Herbalism", "Leatherworking", "Mining", "Skinning", "Tailoring"};
-local secondaryProfessions = {"Cooking", "First Aid", "Fishing"};
+	if setts ~= nil and setts[charname] ~= nil and setts[charname].profs ~= nil then
+		for p in pairs(setts[charname].profs) do
+				if contains(primaryProfessions, p) and setts[charname].profs[p].level ~= nil then
+					foundProf = foundProf.." "..p.." "..setts[charname].profs[p].level;
+				end
+		end
+	end
 
-local function contains(table, val)
-   for i = 1,#table do
-      if table[i] == val then 
-         return true
-      end
-   end
-   return false
+	return foundProf;
 end
+
 
 function printMySavedProfessions()
 	local player = GetUnitName("player");
