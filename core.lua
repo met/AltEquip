@@ -22,6 +22,7 @@ SOFTWARE.
 
 local cYellow = "\124cFFFFFF00";
 local cWhite = "\124cFFFFFFFF";
+local cGreen1 = "\124cFF38FFBE";
 
 local primaryProfessions = {"Alchemy", "Blacksmithing", "Enchanting", "Engineering", "Herbalism", "Leatherworking", "Mining", "Skinning", "Tailoring"};
 local secondaryProfessions = {"Cooking", "First Aid", "Fishing"};
@@ -53,6 +54,7 @@ SlashCmdList["ALTEQUIP"] = function(msg)
 			if AltEquipSettings[msg].items == nil then
 				print("Character ", msg, " has no saved equipment.");
 			else
+				print(cYellow.."Equipment of "..msg..":");
 				for k,v in pairs(AltEquipSettings[msg].items) do
 					print(k, " ", v);
 				end
@@ -75,10 +77,10 @@ SlashCmdList["ALTITEM"] = function(msg)
 		-- for wrong slot names script just fails here
 		local slotid = GetInventorySlotInfo(msg.."slot");
 
-			print("Equipment in ", msg, ":");
+			print(cYellow.."Equipment in ", msg, ":");
 			for name in pairs(AltEquipSettings) do
 				if AltEquipSettings[name]["items"] ~= nil then
-					print(name, " l", AltEquipSettings[name]["level"], " ", AltEquipSettings[name]["class"], " ", AltEquipSettings[name]["items"][slotid]);
+					print(cYellow, name, cWhite, " l", AltEquipSettings[name]["level"], " ", AltEquipSettings[name]["class"], " ", AltEquipSettings[name]["items"][slotid]);
 				end
 			end
 
@@ -133,7 +135,7 @@ end
 
 function printSavedCharacters()
 	for name in pairs(AltEquipSettings) do
-		print(name, " l".. AltEquipSettings[name]["level"], " ", AltEquipSettings[name]["class"]..GetCharacterProfessionLevels(AltEquipSettings, name));
+		print(cYellow..name..cWhite.." l".. AltEquipSettings[name]["level"], " ", AltEquipSettings[name]["class"]..cGreen1..GetCharacterProfessionLevels(AltEquipSettings, name));
 	end
 end
 
@@ -156,10 +158,10 @@ function printMySavedProfessions()
 	local player = GetUnitName("player");
 
 		if AltEquipSettings[player] ~= nil and AltEquipSettings[player]["profs"] ~= nil then
-			print("Found these professions:");
+			print(cYellow.."Found these professions:");
 			for prof in pairs(AltEquipSettings[player]["profs"]) do
 				if contains(primaryProfessions, prof) and AltEquipSettings[player]["profs"][prof].level ~= nil then
-					print(prof, AltEquipSettings[player]["profs"][prof].level);
+					print(cGreen1, prof, AltEquipSettings[player]["profs"][prof].level);
 				end
 			end
 
@@ -172,7 +174,7 @@ function printSavedProfessions()
 		if AltEquipSettings[name]["profs"] ~= nil then
 			for prof in pairs(AltEquipSettings[name]["profs"]) do
 				if contains(primaryProfessions, prof) and AltEquipSettings[name]["profs"][prof].level ~= nil then
-					print(name, "-", prof, AltEquipSettings[name]["profs"][prof].level);
+					print(cYellow..name, "-", cGreen1, prof, AltEquipSettings[name]["profs"][prof].level);
 				end
 			end
 
@@ -188,7 +190,7 @@ function printMySavedSkills()
 			print(cYellow.."Found these skills:");
 			for prof in pairs(AltEquipSettings[player]["profs"]) do
 				if AltEquipSettings[player]["profs"][prof].level ~= nil then
-					print(prof, AltEquipSettings[player]["profs"][prof].level);
+					print(cGreen1, prof, AltEquipSettings[player]["profs"][prof].level);
 				end
 			end
 
@@ -205,7 +207,7 @@ function printSavedSkills(filter)
 			for prof in pairs(AltEquipSettings[name]["profs"]) do
 
 				if (filter == nil or string.lower(prof) == string.lower(filter)) and AltEquipSettings[name]["profs"][prof].level ~= nil then
-					print(name, "-", prof, AltEquipSettings[name]["profs"][prof].level);
+					print(cYellow, name, "-", cGreen1, prof, AltEquipSettings[name]["profs"][prof].level);
 				end
 
 			end
