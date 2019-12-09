@@ -22,6 +22,7 @@ SOFTWARE.
 
 local cYellow = "\124cFFFFFF00";
 local cWhite = "\124cFFFFFFFF";
+local cLightBlue = "\124cFFadd8e6";
 local cGreen1 = "\124cFF38FFBE";
 
 local primaryProfessions = {"Alchemy", "Blacksmithing", "Enchanting", "Engineering", "Herbalism", "Leatherworking", "Mining", "Skinning", "Tailoring"};
@@ -222,18 +223,16 @@ function printSavedBags(setts)
 
 	for name in pairs(setts) do
 
-		local line = name .. " - ";
+		local line = cYellow.. name .. cWhite.. " - ";
 
 		if setts[name].bags ~= nil then
 
 			for n = 1, #setts[name].bags do
 
-				line = line .. setts[name].bags[n].slots;
-
 				if setts[name].bags[n].type == 0 then
-					line = line.." ";
+					line = line..setts[name].bags[n].slots.." ";
 				else
-					line = line.."(special) ";
+					line = line..cLightBlue..setts[name].bags[n].slots.."(special) "..cWhite;
 				end
 			end
 
