@@ -1,4 +1,4 @@
-## Interface: 11302
+## Interface: 11303
 ## Title: Alt equipment
 ## Notes: Show current equipment of your alts in WoW Classic
 ## Author: Martin Hassman
