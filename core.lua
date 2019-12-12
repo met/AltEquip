@@ -22,6 +22,7 @@ SOFTWARE.
 
 local cYellow = "\124cFFFFFF00";
 local cWhite = "\124cFFFFFFFF";
+local cRed = "\124cFFFF0000";
 local cLightBlue = "\124cFFadd8e6";
 local cGreen1 = "\124cFF38FFBE";
 
@@ -247,9 +248,11 @@ local frame = CreateFrame("FRAME");
 
 function frame:OnEvent(event, arg1, ...)
 
-	if event == "ADDON_LOADED" and arg1 == "AltEquip" then
-		if AltEquipSettings == nil then
-			AltEquipSettings = {};
+	if event == "ADDON_LOADED" then
+		if arg1 == "AltEquip" then
+			if AltEquipSettings == nil then
+				AltEquipSettings = {};
+			end
 		end
 
 	elseif event == "PLAYER_ENTERING_WORLD" then
@@ -273,15 +276,86 @@ function frame:OnEvent(event, arg1, ...)
 	elseif event == "CHAT_MSG_SKILL" then
 			UpdatePlayerProfs(AltEquipSettings, arg1);
 
-
 	elseif event == "PLAYER_LOGOUT" then
 		UpdatePlayerData(AltEquipSettings);
 
 	elseif event == "BAG_UPDATE" then
 		--print("BAG_UPDATE", arg1, ...);
 		UpdatePlayerBags(AltEquipSettings);
-	end
 
+	elseif event == "TRADE_SKILL_UPDATE" or event == "CRAFT_UPDATE" then
+		print(cLightBlue..event);
+		-- Opened window with player profession skills
+		-- TODO better listen only _UPDATE events, because during _SHOW are not lines data ready yet (show data from previous profesion window)
+
+		-- for trade professions eg. cooking
+		local skillName, curSkill, maxSkill = GetTradeSkillLine();
+
+		if skillName ~= nil and skillName ~= "UNKNOWN" then
+			print(skillName, curSkill, maxSkill);
+		end
+
+		-- For craft  professions, eg. enchanting
+		local skillName, curSkill, maxSkill = GetCraftDisplaySkillLine();
+
+		if skillName ~= nill and skillName ~= "UNKNOWN" then
+			print(skillName, curSkill, maxSkill);
+		end
+
+		-- only one is correct, second return cache value from previous window
+		-- need to really distinguis is we have opened trade or crafts here
+		print("GetNumTradeSkills", GetNumTradeSkills());
+		print("GetNumCrafts", GetNumCrafts());
+
+		if event == "TRADE_SKILL_UPDATE" then
+			print(cYellow.."GetTradeSkillInfo");
+			for i = 1,GetNumTradeSkills() do
+				print(i, GetTradeSkillInfo(i));
+			end
+		end
+
+		if event == "CRAFT_UPDATE" then
+			print(cYellow.."GetCraftInfo");
+			for i = 1, GetNumCrafts() do
+				print(i, GetCraftInfo(i));
+			end
+		end
+
+		-- https://github.com/satan666/WOW-UI-SOURCE/blob/master/AddOns/Blizzard_TrainerUI/Blizzard_TrainerUI.lua
+		-- https://github.com/satan666/WOW-UI-SOURCE/blob/master/AddOns/Blizzard_TradeSkillUI/Blizzard_TradeSkillUI.lua
+		-- https://github.com/satan666/WOW-UI-SOURCE/blob/master/AddOns/Blizzard_CraftUI/Blizzard_CraftUI.lua
+		--GetCraftDescription(index) text line
+		--GetCraftNumReagents(index)
+		--GetCraftReagentInfo(index, reagentIndex); = name, id, howmuchneed, howmuchhave
+
+	elseif event == "TRAINER_UPDATE" then
+		--print(event, arg1, ...);
+		--event is raised several times during opening window, only the last has lines info loaded (GetNumTrainerServices > 0)
+
+		print(cYellow.."GetTrainerServiceInfo");
+		for i = 1, GetNumTrainerServices() do
+			print(i, GetTrainerServiceInfo(i));
+			--GetTrainerServiceLevelReq(i) -- level limit
+			--GetTrainerServiceSkillReq(i) -- skill level limit { "skillname", number, boolean}
+			-- takhle si mohu snadno stahnout kdy se mohu zacit ucit dalsi dovednosti u trenera
+			-- a v remnotes na to mohu upozornovat
+			-- nemusi to byt v tabulce notes, udelam si tabulku receptu/skillu v treningu - pro kazdeho hrace,
+			-- pri kazdem otevteni okna trenera to updatnu (protoze treneri jsou ruzni)
+			-- a zapamatuji si typ profese, nazev budouciho skillitemu, pozadavky na level a skill u learningu, a jmeno a lokaci trenera (abych ho snadno nasel)
+
+			-- vypis ikon, id ziskam z GetTrainerServiceIcon(index)
+			-- https://wow.gamepedia.com/UI_escape_sequences#Textures
+			-- "|T135913:0|t"
+			-- /run print("\124T135913:0\124t")
+			-- /run print("\124TInterface\\Icons\\INV_Misc_Coin_01:16\124t Coins");
+			-- /run print("\124cFFFF0000This is red text \124rthis is normal color");
+
+		end
+
+	else
+		print(cRed.."ERROR. Received unhandled event.");
+		print(event, arg1, ...);
+	end
 end
 
 function UpdatePlayerEquipment(setts)
@@ -354,6 +428,10 @@ frame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED");
 frame:RegisterEvent("PLAYER_ENTERING_WORLD");
 frame:RegisterEvent("CHAT_MSG_SKILL");
 frame:RegisterEvent("BAG_UPDATE");
+
+frame:RegisterEvent("TRADE_SKILL_UPDATE");
+frame:RegisterEvent("CRAFT_UPDATE");
+frame:RegisterEvent("TRAINER_UPDATE");
 
 
 frame:SetScript("OnEvent", frame.OnEvent);
