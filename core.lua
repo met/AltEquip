@@ -135,6 +135,17 @@ SlashCmdList["ALTBAGS"] = function(msg)
 	printSavedBags(AltEquipSettings);	
 end 
 
+
+SLASH_ALTMAILS1 = "/altm";
+SLASH_ALTMAILS2 = "/altmails";
+-- usage /altm # display unprocessed mails to alts
+SlashCmdList["ALTMAILS"] = function(msg)
+	printLogedMails(AltEquipMailLog);
+
+	--TODO clear old log items after mail were opened and read
+	--TODO inform player that some of his alts already received his emails, so its time to log them and get mails
+end 
+
 function printSavedCharacters()
 	for name in pairs(AltEquipSettings) do
 		print(cYellow..name..cWhite.." l".. AltEquipSettings[name]["level"], " ", AltEquipSettings[name]["class"]..cGreen1..GetCharacterProfessionLevels(AltEquipSettings, name));
@@ -253,6 +264,16 @@ function frame:OnEvent(event, arg1, ...)
 			if AltEquipSettings == nil then
 				AltEquipSettings = {};
 			end
+
+			if AltEquipMailLog == nil then
+				AltEquipMailLog = {};
+			end
+
+			-- tracking send emails to alts
+			-- we hook SEND MAIL button in oficial mail WOW dialog
+			-- but we miss all mails send by other ways (API, addons)
+			-- https://www.townlong-yak.com/framexml/live/MailFrame.lua#833
+			SendMailMailButton:HookScript("OnClick", AltSendMailHookFunction);
 		end
 
 	elseif event == "PLAYER_ENTERING_WORLD" then
@@ -263,18 +284,14 @@ function frame:OnEvent(event, arg1, ...)
 		-- we do not want to rewrite last equipment data
 		-- so update now only if we do not have any data saved yet 
 			UpdatePlayerEquipment(AltEquipSettings);
-
-		-- because we do not have complete data yet,
-		-- register for some event that happen very soon, eg. update of BAGS = dirty solution
-			frame:RegisterEvent("BAG_UPDATE");
 		end
 
 	elseif event == "PLAYER_EQUIPMENT_CHANGED" then
 		-- save new equipment data
 		UpdatePlayerEquipment(AltEquipSettings);
-	
+
 	elseif event == "CHAT_MSG_SKILL" then
-			UpdatePlayerProfs(AltEquipSettings, arg1);
+		UpdatePlayerProfs(AltEquipSettings, arg1);
 
 	elseif event == "PLAYER_LOGOUT" then
 		UpdatePlayerData(AltEquipSettings);
@@ -352,6 +369,17 @@ function frame:OnEvent(event, arg1, ...)
 
 		end
 
+	elseif event == "CHAT_MSG_SYSTEM" then
+		--print(event, arg1, ...);
+		-- there is huge amount of different messages for this event, see https://www.townlong-yak.com/framexml/live/GlobalStrings.lua
+		-- we look for ERR_LEARN_RECIPE_S = "You have learned how to create a new item: %s.";	
+		local itemname = string.match(arg1, "^You have learned how to create a new item: (.+).");
+
+		if itemname ~= nil then
+			print(event, arg1);
+			print("Matched:", itemname);
+		end
+
 	else
 		print(cRed.."ERROR. Received unhandled event.");
 		print(event, arg1, ...);
@@ -422,6 +450,105 @@ function UpdatePlayerBags(setts)
 	end
 end
 
+function IsMyAlt(setts, charname)
+	assert(setts, "IsMyAlt - setts is nil");
+	assert(charname, "IsMyAlt - charname is nil");
+
+	if setts[charname] ~= nil then
+		return true;
+	else
+		return false;
+	end
+end
+
+-- log when player send mail to alts, hooked to SendMailMailButton - OnClick
+function AltSendMailHookFunction(...)
+	--print("AltSendMailHookFunction", ...);
+
+	local recipient = SendMailNameEditBox:GetText();
+	local subject = SendMailSubjectEditBox:GetText();
+	local mailBody = SendMailBodyEditBox:GetText();
+	local mailMoney = 0;
+
+	if SendMailSendMoneyButton:GetChecked() then -- otherwise it is C.O.D = cash on delivery not send money
+		mailMoney = MoneyInputFrame_GetCopper(SendMailMoney);
+	end
+
+	local attachments = {};
+
+	for i = 1, ATTACHMENTS_MAX_SEND do
+		--print(SendMailFrame.SendMailAttachments[i].count);
+		--print(GetSendMailItem(i));
+
+		local itemName, itemID, itemTexture, stackCount, quality = GetSendMailItem(i);
+		if itemName ~= nil then
+			table.insert(attachments, {name = itemName, id = itemID, count = stackCount});
+		end
+	end
+
+	-- we care only about emails sent to alt characters
+	if IsMyAlt(AltEquipSettings, recipient) then
+		LogSendMail(AltEquipMailLog, date(), GetUnitName("player"), recipient, subject, mailBody, mailMoney, attachments);
+	end
+end
+
+function LogSendMail(maillog, dateSend, sender, recipient, subject, mailBody, mailMoney, attachments)
+	assert(maillog, "LogSendMail - maillog is nil");
+	assert(dateSend, "LogSendMail - dateSend is nil");
+	assert(sender, "LogSendMail - sender is nil");
+	assert(recipient, "LogSendMail - recipient is nil");
+	assert(subject, "LogSendMail - subject is nil");
+	assert(mailBody, "LogSendMail - mailBody is nil");
+	assert(mailMoney, "LogSendMail - mailMoney is nil");	
+	assert(attachments, "LogSendMail - attachments is nil");
+
+	local logItem = {
+		date = dateSend,
+		sender = sender, recipient = recipient,
+		subject = subject, body = mailBody,
+		money = mailMoney, attachments = attachments
+	};
+
+	table.insert(maillog, logItem);
+end
+
+function printLogedMails(maillog)
+	assert(maillog, "printLogedMails - maillog is nil");
+
+	if #maillog == 0 then
+		print(cYellow.."Mail log is empty.");
+		return;
+	end
+
+	print(cYellow.."Last mails between alts:");
+
+	for k,v in pairs(maillog) do
+
+		local textMoney = "";
+		if v.money > 0 then
+			textMoney = " money: "..tostring(v.money);
+		end
+
+		local textAttachment = "";
+		if #v.attachments > 0 then
+			textAttachment = cLightBlue.." attached:"..cWhite;
+
+			for k1,v1 in pairs(v.attachments) do
+				local _, itemLink = GetItemInfo(v1.id);
+				local count = v1.count;
+
+				if count > 0 then
+					textAttachment = textAttachment.. " "..tostring(count).."x"..itemLink;
+				else
+					textAttachment = textAttachment.." "..itemLink;
+				end
+			end
+		end
+
+		print(k, "from: "..cYellow..v.sender..cWhite.." to: "..cYellow..v.recipient..cWhite.." s: "..v.subject.." "..cYellow..textMoney..cWhite..textAttachment);
+	end
+end
+
 frame:RegisterEvent("ADDON_LOADED");
 frame:RegisterEvent("PLAYER_LOGOUT");
 frame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED");
@@ -429,6 +556,7 @@ frame:RegisterEvent("PLAYER_ENTERING_WORLD");
 frame:RegisterEvent("CHAT_MSG_SKILL");
 frame:RegisterEvent("BAG_UPDATE");
 
+frame:RegisterEvent("CHAT_MSG_SYSTEM");
 frame:RegisterEvent("TRADE_SKILL_UPDATE");
 frame:RegisterEvent("CRAFT_UPDATE");
 frame:RegisterEvent("TRAINER_UPDATE");

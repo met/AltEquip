@@ -3,6 +3,6 @@
 ## Notes: Show current equipment of your alts in WoW Classic
 ## Author: Martin Hassman
 ## Version: 1.0 
-## SavedVariables: AltEquipSettings
+## SavedVariables: AltEquipSettings, AltEquipMailLog
 
 core.lua
