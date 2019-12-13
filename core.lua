@@ -486,15 +486,19 @@ function AltSendMailHookFunction(...)
 		end
 	end
 
+	local timestamp = time();
+	local dateSend = date(nil, timestamp); -- human readable string for this unixtime
+
 	-- we care only about emails sent to alt characters
 	if IsMyAlt(AltEquipSettings, recipient) then
-		LogSendMail(AltEquipMailLog, date(), GetUnitName("player"), recipient, subject, mailBody, mailMoney, attachments);
+		LogSendMail(AltEquipMailLog, dateSend, timestamp, GetUnitName("player"), recipient, subject, mailBody, mailMoney, attachments);
 	end
 end
 
-function LogSendMail(maillog, dateSend, sender, recipient, subject, mailBody, mailMoney, attachments)
+function LogSendMail(maillog, dateSend, timestamp, sender, recipient, subject, mailBody, mailMoney, attachments)
 	assert(maillog, "LogSendMail - maillog is nil");
 	assert(dateSend, "LogSendMail - dateSend is nil");
+	assert(timestamp, "LogSendMail - timestamp is nil");
 	assert(sender, "LogSendMail - sender is nil");
 	assert(recipient, "LogSendMail - recipient is nil");
 	assert(subject, "LogSendMail - subject is nil");
@@ -503,7 +507,7 @@ function LogSendMail(maillog, dateSend, sender, recipient, subject, mailBody, ma
 	assert(attachments, "LogSendMail - attachments is nil");
 
 	local logItem = {
-		date = dateSend,
+		date = dateSend, timestamp = timestamp, -- 1st humamn readable, 2nd for easy computing
 		sender = sender, recipient = recipient,
 		subject = subject, body = mailBody,
 		money = mailMoney, attachments = attachments
@@ -523,6 +527,14 @@ function printLogedMails(maillog)
 	print(cYellow.."Last mails between alts:");
 
 	for k,v in pairs(maillog) do
+
+		local overHour = false;
+		local recievedText = "";
+
+		if (time() - v.timestamp) > 60*60 then -- 1 hour = 60 * 60 secondes
+			overHour = true;
+			recievedText = cGreen1.."=="..cWhite;
+		end
 
 		local textMoney = "";
 		if v.money > 0 then
@@ -545,7 +557,8 @@ function printLogedMails(maillog)
 			end
 		end
 
-		print(k, "from: "..cYellow..v.sender..cWhite.." to: "..cYellow..v.recipient..cWhite.." s: "..v.subject.." "..cYellow..textMoney..cWhite..textAttachment);
+
+		print(recievedText, k, "from: "..cYellow..v.sender..cWhite.." to: "..cYellow..v.recipient..cWhite.." s: "..v.subject.." "..cYellow..textMoney..cWhite..textAttachment);
 	end
 end
 
