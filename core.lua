@@ -274,6 +274,10 @@ function frame:OnEvent(event, arg1, ...)
 			-- but we miss all mails send by other ways (API, addons)
 			-- https://www.townlong-yak.com/framexml/live/MailFrame.lua#833
 			SendMailMailButton:HookScript("OnClick", AltSendMailHookFunction);
+
+			if HasDeliveredMails(AltEquipMailLog) then
+				print(cYellow.."One of your alts has mail delivered. Try "..SLASH_ALTMAILS1.." for details.");
+			end
 		end
 
 	elseif event == "PLAYER_ENTERING_WORLD" then
@@ -461,6 +465,24 @@ function IsMyAlt(setts, charname)
 	end
 end
 
+-- true if timestamp in unixtime is older than 1 hour
+function IsOlderOneHour(timestamp)
+	return ((time() - timestamp) > 60*60)  -- 1 hour = 60 * 60 secondes
+end
+
+-- check log and if any mail is older than 1 hours (considered deliver), return true
+function HasDeliveredMails(maillog)
+	assert(maillog, "HasDeliveredMails - maillog is nil");
+
+	for k,v in pairs(maillog) do
+		if IsOlderOneHour(v.timestamp) then
+			return true;
+		end
+	end
+
+	return false;
+end
+
 -- log when player send mail to alts, hooked to SendMailMailButton - OnClick
 function AltSendMailHookFunction(...)
 	--print("AltSendMailHookFunction", ...);
@@ -528,11 +550,9 @@ function printLogedMails(maillog)
 
 	for k,v in pairs(maillog) do
 
-		local overHour = false;
 		local recievedText = "";
 
-		if (time() - v.timestamp) > 60*60 then -- 1 hour = 60 * 60 secondes
-			overHour = true;
+		if IsOlderOneHour(v.timestamp) then
 			recievedText = cGreen1.."=="..cWhite;
 		end
 
