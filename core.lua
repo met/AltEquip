@@ -328,6 +328,8 @@ function frame:OnEvent(event, arg1, ...)
 		print("GetNumTradeSkills", GetNumTradeSkills());
 		print("GetNumCrafts", GetNumCrafts());
 
+		--[[ 
+		-- list of learned skills = lines in profession window
 		if event == "TRADE_SKILL_UPDATE" then
 			print(cYellow.."GetTradeSkillInfo");
 			for i = 1,GetNumTradeSkills() do
@@ -341,6 +343,7 @@ function frame:OnEvent(event, arg1, ...)
 				print(i, GetCraftInfo(i));
 			end
 		end
+		--]]
 
 		-- https://github.com/satan666/WOW-UI-SOURCE/blob/master/AddOns/Blizzard_TrainerUI/Blizzard_TrainerUI.lua
 		-- https://github.com/satan666/WOW-UI-SOURCE/blob/master/AddOns/Blizzard_TradeSkillUI/Blizzard_TradeSkillUI.lua
@@ -355,7 +358,7 @@ function frame:OnEvent(event, arg1, ...)
 
 		print(cYellow.."GetTrainerServiceInfo");
 		for i = 1, GetNumTrainerServices() do
-			print(i, GetTrainerServiceInfo(i));
+			--print(i, GetTrainerServiceInfo(i));
 			--GetTrainerServiceLevelReq(i) -- level limit
 			--GetTrainerServiceSkillReq(i) -- skill level limit { "skillname", number, boolean}
 			-- takhle si mohu snadno stahnout kdy se mohu zacit ucit dalsi dovednosti u trenera
@@ -569,7 +572,12 @@ function printLogedMails(maillog)
 				local _, itemLink = GetItemInfo(v1.id);
 				local count = v1.count;
 
-				if count > 0 then
+				if itemLink == nil then
+					itemLink = "";
+					print("Strange, nil itemLink for id, try GetItemInfo() ", v1.id);
+				end
+
+				if count > 1 then
 					textAttachment = textAttachment.. " "..tostring(count).."x"..itemLink;
 				else
 					textAttachment = textAttachment.." "..itemLink;
