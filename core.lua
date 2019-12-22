@@ -146,6 +146,17 @@ SlashCmdList["ALTMAILS"] = function(msg)
 	--TODO inform player that some of his alts already received his emails, so its time to log them and get mails
 end 
 
+SLASH_ALTENCHANT1 = "/alten";
+SLASH_ALTENCHANT2 = "/altenchant";
+-- usage /altshow # display all known alts
+SlashCmdList["ALTENCHANT"] = function(msg)
+
+	print(cYellow.."Items enchantable by armor kits:");
+	print("(0=no enchantment, 15,16,17,18=armor kits)");
+	printEnchantableByArmorKitAlts();
+end 
+
+
 function printSavedCharacters()
 	for name in pairs(AltEquipSettings) do
 		print(cYellow..name..cWhite.." l".. AltEquipSettings[name]["level"], " ", AltEquipSettings[name]["class"]..cGreen1..GetCharacterProfessionLevels(AltEquipSettings, name));
@@ -589,6 +600,77 @@ function printLogedMails(maillog)
 
 		print(recievedText, k, "from: "..cYellow..v.sender..cWhite.." to: "..cYellow..v.recipient..cWhite.." s: "..v.subject.." "..cYellow..textMoney..cWhite..textAttachment);
 	end
+end
+
+function GetItemEnchantements(itemLink)
+	assert(itemLink, "GetItemEnchantements - itemLink is nil");
+
+	local itemId, enchantId, gem1, gem2, gem3, gem4 = string.match(itemLink, "Hitem:(%d+):(%d*):(%d*):(%d*):(%d*):(%d*)");
+	return itemId, enchantId, gem1, gem2, gem3, gem4;
+end
+
+-- return number enchantId (0 for on enchanting)
+function GetItemEnchantId(itemLink)
+	assert(itemLink, "GetItemEnchantements - itemLink is nil");
+
+	local itemId, enchantId = GetItemEnchantements(itemLink);
+
+	if tonumber(enchantId) then
+		enchantId = tonumber(enchantId);
+	else
+		enchantId = 0;
+	end		
+
+	return enchantId;
+end
+
+
+function printEnchantableByArmorKitAlts()
+	local slots = { "chest", "hands", "legs", "feet"};
+
+	for charName,v in pairs(AltEquipSettings) do
+
+		if v.items then
+
+			for i = 1, #slots do
+				local slotId = GetInventorySlotInfo(slots[i].."slot");
+				local itemLink = v.items[slotId];
+				
+				if itemLink then
+					local enchantId = GetItemEnchantId(itemLink);
+
+					local msgEnchant = tostring(enchantId);
+
+					if enchantId == 0 then
+						msgEnchant = cRed..msgEnchant;
+					elseif enchantId >= 15 and enchantId <= 18 then
+						msgEnchant = cYellow..msgEnchant;
+					else
+						msgEnchant = cLightBlue..msgEnchant;
+					end
+
+					print(cYellow..charName..cWhite.." "..slots[i].." : "..msgEnchant);
+				end
+			end
+		end
+	end
+end
+
+
+-- Check if player items are enchanted by armor kits
+function printMyEnchantmentsByArmorKits()
+	local slots = { "chest", "hands", "legs", "feet"};
+
+	for i = 1, #slots do
+		local slotId = GetInventorySlotInfo(slots[i].."slot");
+		local player = GetUnitName("player");
+		local itemLink = AltEquipSettings[player].items[slotId];
+		local enchantId = GetItemEnchantId(itemLink);
+
+		-- armor kits have ids: 15,16,17,18
+		print(player, slots[i], enchantId);
+	end
+
 end
 
 frame:RegisterEvent("ADDON_LOADED");
