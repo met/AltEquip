@@ -573,8 +573,9 @@ function printLogedMails(maillog)
 				local count = v1.count;
 
 				if itemLink == nil then
-					itemLink = "";
-					print("Strange, nil itemLink for id, try GetItemInfo() ", v1.id);
+					-- sometimes GetItemInfo returns nothing, because has no cache data yet
+					-- just show that we do not have a data, on next call is everything ok
+					itemLink = "???";
 				end
 
 				if count > 1 then
