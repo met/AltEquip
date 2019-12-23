@@ -153,7 +153,12 @@ SlashCmdList["ALTENCHANT"] = function(msg)
 
 	print(cYellow.."Items enchantable by armor kits:");
 	print("(0=no enchantment, 15,16,17,18=armor kits)");
-	printEnchantableByArmorKitAlts();
+
+	if msg == "me" then
+		printMyEnchantmentsByArmorKits();
+	else
+		printEnchantableByArmorKitAlts();
+	end
 end 
 
 
@@ -667,7 +672,7 @@ function printMyEnchantmentsByArmorKits()
 		local itemLink = AltEquipSettings[player].items[slotId];
 		local enchantId = GetItemEnchantId(itemLink);
 
-		-- armor kits have ids: 15,16,17,18
+		-- armor kits have ids: 15,16,17,18, see https://wowwiki.fandom.com/wiki/EnchantId
 		print(player, slots[i], enchantId);
 	end
 
