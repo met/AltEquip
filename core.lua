@@ -582,7 +582,7 @@ function printLogedMails(maillog)
 
 		local textAttachment = "";
 		if #v.attachments > 0 then
-			textAttachment = cLightBlue.." attached:"..cWhite;
+			textAttachment = cLightBlue.." A:"..cWhite;
 
 			for k1,v1 in pairs(v.attachments) do
 				local _, itemLink = GetItemInfo(v1.id);
@@ -603,7 +603,7 @@ function printLogedMails(maillog)
 		end
 
 
-		print(recievedText, k, "from: "..cYellow..v.sender..cWhite.." to: "..cYellow..v.recipient..cWhite.." s: "..v.subject.." "..cYellow..textMoney..cWhite..textAttachment);
+		print(recievedText, k, cYellow..v.sender..cWhite.." => "..cYellow..v.recipient..cWhite.." s:"..v.subject.." "..cYellow..textMoney..cWhite..textAttachment);
 	end
 end
 
