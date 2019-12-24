@@ -670,10 +670,13 @@ function printMyEnchantmentsByArmorKits()
 		local slotId = GetInventorySlotInfo(slots[i].."slot");
 		local player = GetUnitName("player");
 		local itemLink = AltEquipSettings[player].items[slotId];
-		local enchantId = GetItemEnchantId(itemLink);
 
-		-- armor kits have ids: 15,16,17,18, see https://wowwiki.fandom.com/wiki/EnchantId
-		print(player, slots[i], enchantId);
+		if itemLink then
+			local enchantId = GetItemEnchantId(itemLink);
+
+			-- armor kits have ids: 15,16,17,18, see https://wowwiki.fandom.com/wiki/EnchantId
+			print(player, slots[i], enchantId);
+		end
 	end
 
 end
