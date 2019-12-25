@@ -257,7 +257,7 @@ function printSavedBags(setts)
 
 			for n = 1, #setts[name].bags do
 
-				if setts[name].bags[n].type == 0 then
+				if setts[name].bags[n].type == 0 or setts[name].bags[n].type == nil then -- nil can happen it player has no bag
 					line = line..setts[name].bags[n].slots.." ";
 				else
 					line = line..cLightBlue..setts[name].bags[n].slots.."(special) "..cWhite;
