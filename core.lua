@@ -321,7 +321,7 @@ function frame:OnEvent(event, arg1, ...)
 		UpdatePlayerBags(AltEquipSettings);
 
 	elseif event == "TRADE_SKILL_UPDATE" or event == "CRAFT_UPDATE" then
-		print(cLightBlue..event);
+		--print(cLightBlue..event);
 		-- Opened window with player profession skills
 		-- TODO better listen only _UPDATE events, because during _SHOW are not lines data ready yet (show data from previous profesion window)
 
@@ -329,20 +329,20 @@ function frame:OnEvent(event, arg1, ...)
 		local skillName, curSkill, maxSkill = GetTradeSkillLine();
 
 		if skillName ~= nil and skillName ~= "UNKNOWN" then
-			print(skillName, curSkill, maxSkill);
+		--	print(skillName, curSkill, maxSkill);
 		end
 
 		-- For craft  professions, eg. enchanting
 		local skillName, curSkill, maxSkill = GetCraftDisplaySkillLine();
 
 		if skillName ~= nill and skillName ~= "UNKNOWN" then
-			print(skillName, curSkill, maxSkill);
+		--	print(skillName, curSkill, maxSkill);
 		end
 
 		-- only one is correct, second return cache value from previous window
 		-- need to really distinguis is we have opened trade or crafts here
-		print("GetNumTradeSkills", GetNumTradeSkills());
-		print("GetNumCrafts", GetNumCrafts());
+		--print("GetNumTradeSkills", GetNumTradeSkills());
+		--print("GetNumCrafts", GetNumCrafts());
 
 		--[[ 
 		-- list of learned skills = lines in profession window
@@ -372,7 +372,7 @@ function frame:OnEvent(event, arg1, ...)
 		--print(event, arg1, ...);
 		--event is raised several times during opening window, only the last has lines info loaded (GetNumTrainerServices > 0)
 
-		print(cYellow.."GetTrainerServiceInfo");
+		--print(cYellow.."GetTrainerServiceInfo");
 		for i = 1, GetNumTrainerServices() do
 			--print(i, GetTrainerServiceInfo(i));
 			--GetTrainerServiceLevelReq(i) -- level limit
