@@ -140,7 +140,14 @@ SLASH_ALTMAILS1 = "/altm";
 SLASH_ALTMAILS2 = "/altmails";
 -- usage /altm # display unprocessed mails to alts
 SlashCmdList["ALTMAILS"] = function(msg)
-	printLogedMails(AltEquipMailLog);
+	
+	-- /altm clear -- clear message log manually (need to do this automatically)
+	if msg == "clear" then
+		AltEquipMailLog = {};
+		print(cYellow.."Mail log was cleared.");
+	else
+		printLogedMails(AltEquipMailLog);
+	end
 
 	--TODO clear old log items after mail were opened and read
 	--TODO inform player that some of his alts already received his emails, so its time to log them and get mails
